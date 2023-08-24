@@ -9,8 +9,9 @@ mod connect;
 mod error;
 
 pub use connect::Connection;
+pub use error::Error;
 
-pub(crate) const API_DIR: &str = "/dev/surfaceflinger_hook";
+pub const API_DIR: &str = "/dev/surfaceflinger_hook";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct JankLevel(u32);

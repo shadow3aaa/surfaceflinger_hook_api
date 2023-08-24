@@ -25,7 +25,7 @@ pub struct Connection {
 impl Connection {
     /// Initialize the connection, block until the connection is successful
     ///
-    /// # Error
+    /// # Errors
     ///
     /// Fail to open pipe (sugg: Check if you have root access)
     pub fn init_and_wait(_t: JankType) -> Result<Self> {
@@ -57,17 +57,21 @@ impl Connection {
 
     /// Set target_fps and settlement point for calculating jank
     ///
-    /// # Error
+    /// # Errors
     ///
     /// Fail to send message to setter thread
     pub fn set_input(&self, t: u32, j: JankType) -> Result<()> {
         self.sx
             .send((t, j))
-            .map_err(|_| Error::Other("Failed to send input"))?;
+            .map_err(|_| Error::Other("Failed to send input data"))?;
         Ok(())
     }
 
     /// Blocking receiving the latest jank
+    ///
+    /// # Errors
+    ///
+    /// Failed to open pipe / Failed to parse jank-level
     pub fn recv(&self) -> Result<JankLevel> {
         let r = fs::read_to_string(&self.jank_pipe)?;
 
@@ -76,23 +80,29 @@ impl Connection {
             .lines()
             .last()
             .and_then(|l| l.trim().parse().ok())
-            .ok_or(Error::Other("Failed to parse jank-level"))?;
+            .ok_or(Error::NamedPipe)?;
 
         Ok(JankLevel(level))
     }
 
+    /// Receiving the latest jank, no blocking
+    ///
+    /// # Errors
+    ///
+    /// No jank-messge / Failed to open pipe / Failed to parse jank-level
     pub fn try_recv(&self) -> Result<JankLevel> {
         let mut p = named_pipe::open_read(&self.jank_pipe)?;
 
         let mut r = String::new();
         p.read_to_string(&mut r)?;
 
-        let level: u32 = r
+        let l = r
             .trim()
             .lines()
             .last()
-            .and_then(|l| l.trim().parse().ok())
-            .ok_or(Error::Other("Failed to parse jank-level"))?;
+            .ok_or(Error::Other("No jank-message finded"))?;
+
+        let level: u32 = l.trim().parse().map_err(|_| Error::NamedPipe)?;
 
         Ok(JankLevel(level))
     }
