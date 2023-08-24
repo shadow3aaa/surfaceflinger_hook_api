@@ -55,7 +55,7 @@ impl Connection {
         })
     }
 
-    /// Set target_fps and settlement point for calculating jank
+    /// Set `target_fps` and settlement point for calculating jank
     ///
     /// # Errors
     ///

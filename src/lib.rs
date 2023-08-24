@@ -1,4 +1,4 @@
-#![deny(clippy::all)]
+#![deny(clippy::all, clippy::pedantic)]
 #![warn(clippy::nursery)]
 
 #[cfg(not(target_os = "android"))]
