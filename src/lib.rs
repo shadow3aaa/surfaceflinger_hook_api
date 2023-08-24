@@ -12,10 +12,10 @@ pub use connect::Connection;
 
 pub(crate) const API_DIR: &str = "/dev/surfaceflinger_hook";
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct JankLevel(u32);
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum JankType {
     Vsync,
     Soft,
