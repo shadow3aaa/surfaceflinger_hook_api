@@ -1,5 +1,5 @@
 [package]
-name = "surfacefliger_hook_api"
+name = "surfaceflinger_hook_api"
 version = "0.1.0"
 edition = "2021"
 
