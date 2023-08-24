@@ -1,0 +1,3 @@
+(function() {var implementors = {
+"surfaceflinger_hook_api":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.70.0/core/clone/trait.Clone.html\" title=\"trait core::clone::Clone\">Clone</a> for <a class=\"enum\" href=\"surfaceflinger_hook_api/enum.JankType.html\" title=\"enum surfaceflinger_hook_api::JankType\">JankType</a>"],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.70.0/core/clone/trait.Clone.html\" title=\"trait core::clone::Clone\">Clone</a> for <a class=\"struct\" href=\"surfaceflinger_hook_api/struct.JankLevel.html\" title=\"struct surfaceflinger_hook_api::JankLevel\">JankLevel</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
