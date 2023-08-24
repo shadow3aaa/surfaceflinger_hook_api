@@ -1,3 +1,4 @@
 # Surfaceflinger Hook Api
 
-* 通过注入来检测jank，这是对应root程序接收jank的api
+* Detect jank by injection, this is the api corresponding to the root program receiving jank
+* [doc](https://shadow3aaa.github.io/surfacefliger_hook_api/surfacefliger_hook_api)
