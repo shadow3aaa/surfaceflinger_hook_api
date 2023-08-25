@@ -120,6 +120,8 @@
 <a href="#120" id="120">120</a>
 <a href="#121" id="121">121</a>
 <a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
 </pre></div><pre class="rust"><code><span class="comment">/* Copyright 2023 shadow3aaa@gitbub.com
 *
 *  Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -154,7 +156,7 @@
 <span class="doccomment">/// ipc with surfaceflinger
 </span><span class="kw">pub struct </span>Connection {
     jank_pipe: PathBuf,
-    sx: Sender&lt;(u32, JankType)&gt;,
+    sx: Sender&lt;(<span class="prelude-ty">Option</span>&lt;u32&gt;, JankType)&gt;,
 }
 
 <span class="kw">impl </span>Connection {
@@ -192,10 +194,12 @@
 
     <span class="doccomment">/// Set `target_fps` and settlement point for calculating jank
     ///
+    /// Use `display_refresh_rate` when `target_fps` is set to None
+    ///
     /// # Errors
     ///
     /// Failed to send message to setter thread
-    </span><span class="kw">pub fn </span>set_input(<span class="kw-2">&amp;</span><span class="self">self</span>, t: u32, j: JankType) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    </span><span class="kw">pub fn </span>set_input(<span class="kw-2">&amp;</span><span class="self">self</span>, t: <span class="prelude-ty">Option</span>&lt;u32&gt;, j: JankType) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="self">self</span>.sx
             .send((t, j))
             .map_err(|<span class="kw">_</span>| Error::Other(<span class="string">&quot;Failed to send input data&quot;</span>))<span class="question-mark">?</span>;

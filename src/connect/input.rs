@@ -17,7 +17,7 @@ use std::{
 
 use crate::{error::Result, JankType};
 
-pub fn updater(rx: &Receiver<(u32, JankType)>, p: &mut File) {
+pub fn updater(rx: &Receiver<(Option<u32>, JankType)>, p: &mut File) {
     let display_fps = get_refresh_rate().unwrap_or_default();
     let mut status = (display_fps, display_fps, JankType::Vsync);
 
@@ -27,6 +27,7 @@ pub fn updater(rx: &Receiver<(u32, JankType)>, p: &mut File) {
         temp_status.1 = get_refresh_rate().unwrap_or_default();
 
         if let Ok((t, j)) = rx.try_recv() {
+            let t = t.unwrap_or_else(|| get_refresh_rate().unwrap_or_default());
             temp_status.0 = t;
             temp_status.2 = j;
         }

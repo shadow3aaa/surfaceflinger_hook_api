@@ -32,7 +32,7 @@ use crate::{
 /// ipc with surfaceflinger
 pub struct Connection {
     jank_pipe: PathBuf,
-    sx: Sender<(u32, JankType)>,
+    sx: Sender<(Option<u32>, JankType)>,
 }
 
 impl Connection {
@@ -70,10 +70,12 @@ impl Connection {
 
     /// Set `target_fps` and settlement point for calculating jank
     ///
+    /// Use `display_refresh_rate` when `target_fps` is set to None
+    ///
     /// # Errors
     ///
     /// Failed to send message to setter thread
-    pub fn set_input(&self, t: u32, j: JankType) -> Result<()> {
+    pub fn set_input(&self, t: Option<u32>, j: JankType) -> Result<()> {
         self.sx
             .send((t, j))
             .map_err(|_| Error::Other("Failed to send input data"))?;

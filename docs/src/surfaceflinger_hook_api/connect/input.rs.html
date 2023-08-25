@@ -71,6 +71,7 @@
 <a href="#71" id="71">71</a>
 <a href="#72" id="72">72</a>
 <a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
 </pre></div><pre class="rust"><code><span class="comment">/* Copyright 2023 shadow3aaa@gitbub.com
 *
 *  Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -90,7 +91,7 @@
 
 <span class="kw">use crate</span>::{error::Result, JankType};
 
-<span class="kw">pub fn </span>updater(rx: <span class="kw-2">&amp;</span>Receiver&lt;(u32, JankType)&gt;, p: <span class="kw-2">&amp;mut </span>File) {
+<span class="kw">pub fn </span>updater(rx: <span class="kw-2">&amp;</span>Receiver&lt;(<span class="prelude-ty">Option</span>&lt;u32&gt;, JankType)&gt;, p: <span class="kw-2">&amp;mut </span>File) {
     <span class="kw">let </span>display_fps = get_refresh_rate().unwrap_or_default();
     <span class="kw">let </span><span class="kw-2">mut </span>status = (display_fps, display_fps, JankType::Vsync);
 
@@ -100,6 +101,7 @@
         temp_status.<span class="number">1 </span>= get_refresh_rate().unwrap_or_default();
 
         <span class="kw">if let </span><span class="prelude-val">Ok</span>((t, j)) = rx.try_recv() {
+            <span class="kw">let </span>t = t.unwrap_or_else(|| get_refresh_rate().unwrap_or_default());
             temp_status.<span class="number">0 </span>= t;
             temp_status.<span class="number">2 </span>= j;
         }
