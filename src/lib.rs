@@ -27,7 +27,7 @@ pub use error::Error;
 pub const API_DIR: &str = "/dev/surfaceflinger_hook";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct JankLevel(u32);
+pub struct JankLevel(pub u32);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum JankType {
