@@ -40,8 +40,8 @@ impl Connection {
     ///
     /// # Errors
     ///
-    /// Fail to open pipe (sugg: Check if you have root access)
-    pub fn init_and_wait(_t: JankType) -> Result<Self> {
+    /// Failed to open pipe (sugg: Check if you have root access)
+    pub fn init_and_wait() -> Result<Self> {
         let hook_input_path = Path::new(API_DIR).join("input");
         let jank_path = Path::new(API_DIR).join("jank");
 
@@ -72,7 +72,7 @@ impl Connection {
     ///
     /// # Errors
     ///
-    /// Fail to send message to setter thread
+    /// Failed to send message to setter thread
     pub fn set_input(&self, t: u32, j: JankType) -> Result<()> {
         self.sx
             .send((t, j))

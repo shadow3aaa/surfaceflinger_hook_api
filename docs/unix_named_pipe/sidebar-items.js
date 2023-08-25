@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["create","open_read","open_write"],"trait":["FileFIFOExt"]};
