@@ -14,9 +14,8 @@
 mod input;
 
 use std::{
-    fs::{File, OpenOptions},
-    io::prelude::*,
-    path::Path,
+    fs::{self, OpenOptions},
+    path::{Path, PathBuf},
     sync::mpsc::{self, Sender},
     thread,
 };
@@ -28,7 +27,7 @@ use crate::{
 
 /// ipc with surfaceflinger
 pub struct Connection {
-    jank_pipe: File,
+    jank_pipe: PathBuf,
     sx: Sender<(Option<u32>, JankType)>,
 }
 
@@ -48,17 +47,23 @@ impl Connection {
             }
         }
 
-        let mut hook_input_pipe = OpenOptions::new().write(true).open(hook_input_path)?;
-        let jank_pipe = OpenOptions::new().read(true).open(jank_path)?;
+        let _hook_input_pipe = OpenOptions::new().write(true).open(&hook_input_path)?;
+        let _jank_pipe = OpenOptions::new().read(true).open(&jank_path)?;
 
         let (sx, rx) = mpsc::channel();
 
-        thread::Builder::new()
-            .name("StatusUpdater".into())
-            .spawn(move || input::updater(&rx, &mut hook_input_pipe))
-            .map_err(|_| Error::Other("Failed to start updater thread"))?;
+        {
+            let hook_input_path = hook_input_path;
+            thread::Builder::new()
+                .name("StatusUpdater".into())
+                .spawn(move || input::updater(&rx, &hook_input_path))
+                .map_err(|_| Error::Other("Failed to start updater thread"))?;
+        }
 
-        Ok(Self { jank_pipe, sx })
+        Ok(Self {
+            jank_pipe: jank_path,
+            sx,
+        })
     }
 
     /// Set `target_fps` and settlement point for calculating jank
@@ -80,9 +85,8 @@ impl Connection {
     /// # Errors
     ///
     /// Failed to open pipe / Failed to parse jank-level
-    pub fn recv(&mut self) -> Result<JankLevel> {
-        let mut r = String::new();
-        self.jank_pipe.read_to_string(&mut r)?;
+    pub fn recv(&self) -> Result<JankLevel> {
+        let r = fs::read_to_string(&self.jank_pipe)?;
 
         let level: u32 = r
             .trim()

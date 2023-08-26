@@ -11,13 +11,11 @@
 *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 *  See the License for the specific language governing permissions and
 *  limitations under the License. */
-use std::{
-    fs::File, io::prelude::*, process::Command, sync::mpsc::Receiver, thread, time::Duration,
-};
+use std::{fs, path::Path, process::Command, sync::mpsc::Receiver, thread, time::Duration};
 
 use crate::{error::Result, JankType};
 
-pub fn updater(rx: &Receiver<(Option<u32>, JankType)>, p: &mut File) {
+pub fn updater(rx: &Receiver<(Option<u32>, JankType)>, p: &Path) {
     let display_fps = get_refresh_rate().unwrap_or_default();
     let mut status = (display_fps, display_fps, JankType::Vsync);
 
@@ -46,11 +44,14 @@ pub fn updater(rx: &Receiver<(Option<u32>, JankType)>, p: &mut File) {
     }
 }
 
-fn write_input(p: &mut File, t: u32, d: u32, j: JankType) -> Result<()> {
-    match j {
-        JankType::Vsync => writeln!(p, "{t}:{d}:vsync")?,
-        JankType::Soft => writeln!(p, "{t}:{d}:soft")?,
-    }
+fn write_input(p: &Path, t: u32, d: u32, j: JankType) -> Result<()> {
+    let message = match j {
+        JankType::Vsync => format!("{t}:{d}:vsync\n"),
+        JankType::Soft => format!("{t}:{d}:soft\n"),
+    };
+
+    fs::write(p, message)?;
+
     Ok(())
 }
 

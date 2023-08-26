@@ -94,6 +94,10 @@
 <a href="#94" id="94">94</a>
 <a href="#95" id="95">95</a>
 <a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
 </pre></div><pre class="rust"><code><span class="comment">/* Copyright 2023 shadow3aaa@gitbub.com
 *
 *  Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -110,9 +114,8 @@
 </span><span class="kw">mod </span>input;
 
 <span class="kw">use </span>std::{
-    fs::{File, OpenOptions},
-    io::prelude::<span class="kw-2">*</span>,
-    path::Path,
+    fs::{<span class="self">self</span>, OpenOptions},
+    path::{Path, PathBuf},
     sync::mpsc::{<span class="self">self</span>, Sender},
     thread,
 };
@@ -124,7 +127,7 @@
 
 <span class="doccomment">/// ipc with surfaceflinger
 </span><span class="kw">pub struct </span>Connection {
-    jank_pipe: File,
+    jank_pipe: PathBuf,
     sx: Sender&lt;(<span class="prelude-ty">Option</span>&lt;u32&gt;, JankType)&gt;,
 }
 
@@ -144,17 +147,23 @@
             }
         }
 
-        <span class="kw">let </span><span class="kw-2">mut </span>hook_input_pipe = OpenOptions::new().write(<span class="bool-val">true</span>).open(hook_input_path)<span class="question-mark">?</span>;
-        <span class="kw">let </span>jank_pipe = OpenOptions::new().read(<span class="bool-val">true</span>).open(jank_path)<span class="question-mark">?</span>;
+        <span class="kw">let </span>_hook_input_pipe = OpenOptions::new().write(<span class="bool-val">true</span>).open(<span class="kw-2">&amp;</span>hook_input_path)<span class="question-mark">?</span>;
+        <span class="kw">let </span>_jank_pipe = OpenOptions::new().read(<span class="bool-val">true</span>).open(<span class="kw-2">&amp;</span>jank_path)<span class="question-mark">?</span>;
 
         <span class="kw">let </span>(sx, rx) = mpsc::channel();
 
-        thread::Builder::new()
-            .name(<span class="string">&quot;StatusUpdater&quot;</span>.into())
-            .spawn(<span class="kw">move </span>|| input::updater(<span class="kw-2">&amp;</span>rx, <span class="kw-2">&amp;mut </span>hook_input_pipe))
-            .map_err(|<span class="kw">_</span>| Error::Other(<span class="string">&quot;Failed to start updater thread&quot;</span>))<span class="question-mark">?</span>;
+        {
+            <span class="kw">let </span>hook_input_path = hook_input_path;
+            thread::Builder::new()
+                .name(<span class="string">&quot;StatusUpdater&quot;</span>.into())
+                .spawn(<span class="kw">move </span>|| input::updater(<span class="kw-2">&amp;</span>rx, <span class="kw-2">&amp;</span>hook_input_path))
+                .map_err(|<span class="kw">_</span>| Error::Other(<span class="string">&quot;Failed to start updater thread&quot;</span>))<span class="question-mark">?</span>;
+        }
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ jank_pipe, sx })
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            jank_pipe: jank_path,
+            sx,
+        })
     }
 
     <span class="doccomment">/// Set `target_fps` and settlement point for calculating jank
@@ -176,9 +185,8 @@
     /// # Errors
     ///
     /// Failed to open pipe / Failed to parse jank-level
-    </span><span class="kw">pub fn </span>recv(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;JankLevel&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>r = String::new();
-        <span class="self">self</span>.jank_pipe.read_to_string(<span class="kw-2">&amp;mut </span>r)<span class="question-mark">?</span>;
+    </span><span class="kw">pub fn </span>recv(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;JankLevel&gt; {
+        <span class="kw">let </span>r = fs::read_to_string(<span class="kw-2">&amp;</span><span class="self">self</span>.jank_pipe)<span class="question-mark">?</span>;
 
         <span class="kw">let </span>level: u32 = r
             .trim()
