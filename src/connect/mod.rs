@@ -47,18 +47,14 @@ impl Connection {
             }
         }
 
-        let _ = OpenOptions::new().write(true).open(&hook_input_path)?;
         let _ = OpenOptions::new().read(true).open(&jank_path)?;
 
         let (sx, rx) = mpsc::channel();
 
-        {
-            let hook_input_path = hook_input_path;
-            thread::Builder::new()
-                .name("StatusUpdater".into())
-                .spawn(move || input::updater(&rx, &hook_input_path))
-                .map_err(|_| Error::Other("Failed to start updater thread"))?;
-        }
+        thread::Builder::new()
+            .name("StatusUpdater".into())
+            .spawn(move || input::updater(&rx, &hook_input_path))
+            .map_err(|_| Error::Other("Failed to start updater thread"))?;
 
         Ok(Self {
             jank_pipe: jank_path,

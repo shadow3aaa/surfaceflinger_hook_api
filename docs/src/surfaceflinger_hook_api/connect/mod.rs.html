@@ -94,10 +94,6 @@
 <a href="#94" id="94">94</a>
 <a href="#95" id="95">95</a>
 <a href="#96" id="96">96</a>
-<a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
 </pre></div><pre class="rust"><code><span class="comment">/* Copyright 2023 shadow3aaa@gitbub.com
 *
 *  Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -147,18 +143,14 @@
             }
         }
 
-        <span class="kw">let _ </span>= OpenOptions::new().write(<span class="bool-val">true</span>).open(<span class="kw-2">&amp;</span>hook_input_path)<span class="question-mark">?</span>;
         <span class="kw">let _ </span>= OpenOptions::new().read(<span class="bool-val">true</span>).open(<span class="kw-2">&amp;</span>jank_path)<span class="question-mark">?</span>;
 
         <span class="kw">let </span>(sx, rx) = mpsc::channel();
 
-        {
-            <span class="kw">let </span>hook_input_path = hook_input_path;
-            thread::Builder::new()
-                .name(<span class="string">&quot;StatusUpdater&quot;</span>.into())
-                .spawn(<span class="kw">move </span>|| input::updater(<span class="kw-2">&amp;</span>rx, <span class="kw-2">&amp;</span>hook_input_path))
-                .map_err(|<span class="kw">_</span>| Error::Other(<span class="string">&quot;Failed to start updater thread&quot;</span>))<span class="question-mark">?</span>;
-        }
+        thread::Builder::new()
+            .name(<span class="string">&quot;StatusUpdater&quot;</span>.into())
+            .spawn(<span class="kw">move </span>|| input::updater(<span class="kw-2">&amp;</span>rx, <span class="kw-2">&amp;</span>hook_input_path))
+            .map_err(|<span class="kw">_</span>| Error::Other(<span class="string">&quot;Failed to start updater thread&quot;</span>))<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
             jank_pipe: jank_path,
