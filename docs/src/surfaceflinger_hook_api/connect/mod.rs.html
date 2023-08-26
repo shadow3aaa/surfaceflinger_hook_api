@@ -147,8 +147,8 @@
             }
         }
 
-        <span class="kw">let </span>_hook_input_pipe = OpenOptions::new().write(<span class="bool-val">true</span>).open(<span class="kw-2">&amp;</span>hook_input_path)<span class="question-mark">?</span>;
-        <span class="kw">let </span>_jank_pipe = OpenOptions::new().read(<span class="bool-val">true</span>).open(<span class="kw-2">&amp;</span>jank_path)<span class="question-mark">?</span>;
+        <span class="kw">let _ </span>= OpenOptions::new().write(<span class="bool-val">true</span>).open(<span class="kw-2">&amp;</span>hook_input_path)<span class="question-mark">?</span>;
+        <span class="kw">let _ </span>= OpenOptions::new().read(<span class="bool-val">true</span>).open(<span class="kw-2">&amp;</span>jank_path)<span class="question-mark">?</span>;
 
         <span class="kw">let </span>(sx, rx) = mpsc::channel();
 

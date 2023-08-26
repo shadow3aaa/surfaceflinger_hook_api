@@ -47,8 +47,8 @@ impl Connection {
             }
         }
 
-        let _hook_input_pipe = OpenOptions::new().write(true).open(&hook_input_path)?;
-        let _jank_pipe = OpenOptions::new().read(true).open(&jank_path)?;
+        let _ = OpenOptions::new().write(true).open(&hook_input_path)?;
+        let _ = OpenOptions::new().read(true).open(&jank_path)?;
 
         let (sx, rx) = mpsc::channel();
 
