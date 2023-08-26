@@ -72,6 +72,9 @@
 <a href="#72" id="72">72</a>
 <a href="#73" id="73">73</a>
 <a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
 </pre></div><pre class="rust"><code><span class="comment">/* Copyright 2023 shadow3aaa@gitbub.com
 *
 *  Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -94,6 +97,9 @@
 <span class="kw">pub fn </span>updater(rx: <span class="kw-2">&amp;</span>Receiver&lt;(<span class="prelude-ty">Option</span>&lt;u32&gt;, JankType)&gt;, p: <span class="kw-2">&amp;mut </span>File) {
     <span class="kw">let </span>display_fps = get_refresh_rate().unwrap_or_default();
     <span class="kw">let </span><span class="kw-2">mut </span>status = (display_fps, display_fps, JankType::Vsync);
+
+    <span class="kw">let </span>(t, d, j) = status;
+    <span class="kw">let _ </span>= write_input(p, t, d, j);
 
     <span class="kw">loop </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>temp_status = status;

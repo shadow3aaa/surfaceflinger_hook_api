@@ -21,6 +21,9 @@ pub fn updater(rx: &Receiver<(Option<u32>, JankType)>, p: &mut File) {
     let display_fps = get_refresh_rate().unwrap_or_default();
     let mut status = (display_fps, display_fps, JankType::Vsync);
 
+    let (t, d, j) = status;
+    let _ = write_input(p, t, d, j);
+
     loop {
         let mut temp_status = status;
 
