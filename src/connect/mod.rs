@@ -14,15 +14,12 @@
 mod input;
 
 use std::{
-    fs::{self, File},
+    fs::{File, OpenOptions},
     io::prelude::*,
-    path::{Path, PathBuf},
+    path::Path,
     sync::mpsc::{self, Sender},
     thread,
-    time::Duration,
 };
-
-use unix_named_pipe as named_pipe;
 
 use crate::{
     error::{Error, Result},
@@ -31,7 +28,7 @@ use crate::{
 
 /// ipc with surfaceflinger
 pub struct Connection {
-    jank_pipe: PathBuf,
+    jank_pipe: File,
     sx: Sender<(Option<u32>, JankType)>,
 }
 
@@ -45,15 +42,8 @@ impl Connection {
         let hook_input_path = Path::new(API_DIR).join("input");
         let jank_path = Path::new(API_DIR).join("jank");
 
-        loop {
-            if hook_input_path.exists() && jank_path.exists() {
-                break;
-            }
-
-            thread::sleep(Duration::from_secs(1));
-        } // Wait until surfaceflinger created named pipe
-
-        let mut hook_input_pipe = File::open(&hook_input_path)?;
+        let mut hook_input_pipe = OpenOptions::new().write(true).open(hook_input_path)?;
+        let jank_pipe = OpenOptions::new().read(true).open(jank_path)?;
 
         let (sx, rx) = mpsc::channel();
 
@@ -62,10 +52,7 @@ impl Connection {
             .spawn(move || input::updater(&rx, &mut hook_input_pipe))
             .map_err(|_| Error::Other("Failed to start updater thread"))?;
 
-        Ok(Self {
-            jank_pipe: jank_path,
-            sx,
-        })
+        Ok(Self { jank_pipe, sx })
     }
 
     /// Set `target_fps` and settlement point for calculating jank
@@ -87,8 +74,9 @@ impl Connection {
     /// # Errors
     ///
     /// Failed to open pipe / Failed to parse jank-level
-    pub fn recv(&self) -> Result<JankLevel> {
-        let r = fs::read_to_string(&self.jank_pipe)?;
+    pub fn recv(&mut self) -> Result<JankLevel> {
+        let mut r = String::new();
+        self.jank_pipe.read_to_string(&mut r)?;
 
         let level: u32 = r
             .trim()
@@ -96,28 +84,6 @@ impl Connection {
             .last()
             .and_then(|l| l.trim().parse().ok())
             .ok_or(Error::NamedPipe)?;
-
-        Ok(JankLevel(level))
-    }
-
-    /// Receiving the latest jank, no blocking
-    ///
-    /// # Errors
-    ///
-    /// No jank-messge / Failed to open pipe / Failed to parse jank-level
-    pub fn try_recv(&self) -> Result<JankLevel> {
-        let mut p = named_pipe::open_read(&self.jank_pipe)?;
-
-        let mut r = String::new();
-        p.read_to_string(&mut r)?;
-
-        let l = r
-            .trim()
-            .lines()
-            .last()
-            .ok_or(Error::Other("No jank-message finded"))?;
-
-        let level: u32 = l.trim().parse().map_err(|_| Error::NamedPipe)?;
 
         Ok(JankLevel(level))
     }
