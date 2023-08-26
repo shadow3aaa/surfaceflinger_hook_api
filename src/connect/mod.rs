@@ -42,6 +42,12 @@ impl Connection {
         let hook_input_path = Path::new(API_DIR).join("input");
         let jank_path = Path::new(API_DIR).join("jank");
 
+        loop {
+            if hook_input_path.exists() && jank_path.exists() {
+                break;
+            }
+        }
+
         let mut hook_input_pipe = OpenOptions::new().write(true).open(hook_input_path)?;
         let jank_pipe = OpenOptions::new().read(true).open(jank_path)?;
 
