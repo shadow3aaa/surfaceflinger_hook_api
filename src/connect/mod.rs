@@ -18,6 +18,7 @@ use std::{
     path::{Path, PathBuf},
     sync::mpsc::{self, Sender},
     thread,
+    time::Duration,
 };
 
 use crate::{
@@ -45,6 +46,8 @@ impl Connection {
             if hook_input_path.exists() && jank_path.exists() {
                 break;
             }
+
+            thread::sleep(Duration::from_secs(1));
         }
 
         let _ = OpenOptions::new().read(true).open(&jank_path)?;

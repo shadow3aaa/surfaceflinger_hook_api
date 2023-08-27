@@ -94,6 +94,9 @@
 <a href="#94" id="94">94</a>
 <a href="#95" id="95">95</a>
 <a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
 </pre></div><pre class="rust"><code><span class="comment">/* Copyright 2023 shadow3aaa@gitbub.com
 *
 *  Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -114,6 +117,7 @@
     path::{Path, PathBuf},
     sync::mpsc::{<span class="self">self</span>, Sender},
     thread,
+    time::Duration,
 };
 
 <span class="kw">use crate</span>::{
@@ -141,6 +145,8 @@
             <span class="kw">if </span>hook_input_path.exists() &amp;&amp; jank_path.exists() {
                 <span class="kw">break</span>;
             }
+
+            thread::sleep(Duration::from_secs(<span class="number">1</span>));
         }
 
         <span class="kw">let _ </span>= OpenOptions::new().read(<span class="bool-val">true</span>).open(<span class="kw-2">&amp;</span>jank_path)<span class="question-mark">?</span>;
