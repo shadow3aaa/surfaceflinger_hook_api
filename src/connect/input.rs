@@ -17,7 +17,7 @@ use crate::{error::Result, JankType};
 
 pub fn updater(rx: &Receiver<(Option<u32>, JankType)>, p: &Path) {
     let display_fps = get_refresh_rate().unwrap_or_default();
-    let mut status = (display_fps, display_fps, JankType::Vsync);
+    let mut status = (display_fps, display_fps, JankType::Soft);
 
     let (t, d, j) = status;
     let _ = write_input(p, t, d, j);
