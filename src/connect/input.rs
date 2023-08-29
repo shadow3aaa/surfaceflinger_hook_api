@@ -11,13 +11,26 @@
 *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 *  See the License for the specific language governing permissions and
 *  limitations under the License. */
-use std::{fs, path::Path, process::Command, sync::mpsc::Receiver, thread, time::Duration};
+use std::{
+    fs,
+    path::Path,
+    process::Command,
+    sync::{
+        atomic::{AtomicU32, Ordering},
+        mpsc::Receiver,
+        Arc,
+    },
+    thread,
+    time::Duration,
+};
 
 use crate::{error::Result, JankType};
 
-pub fn updater(rx: &Receiver<(Option<u32>, JankType)>, p: &Path) {
+pub fn updater(rx: &Receiver<(Option<u32>, JankType)>, p: &Path, df: &Arc<AtomicU32>) {
     let display_fps = get_refresh_rate().unwrap_or_default();
     let mut status = (display_fps, display_fps, JankType::Soft);
+
+    df.store(display_fps, Ordering::Release);
 
     let (t, d, j) = status;
     let _ = write_input(p, t, d, j);
@@ -38,6 +51,8 @@ pub fn updater(rx: &Receiver<(Option<u32>, JankType)>, p: &Path) {
 
             let (t, d, j) = status;
             let _ = write_input(p, t, d, j);
+
+            df.store(d, Ordering::Release);
         }
 
         thread::sleep(Duration::from_secs(1));

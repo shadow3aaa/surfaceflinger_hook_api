@@ -16,7 +16,11 @@ mod input;
 use std::{
     fs::{self, OpenOptions},
     path::{Path, PathBuf},
-    sync::mpsc::{self, Sender},
+    sync::{
+        atomic::{AtomicU32, Ordering},
+        mpsc::{self, Sender},
+        Arc,
+    },
     thread,
     time::Duration,
 };
@@ -30,6 +34,7 @@ use crate::{
 pub struct Connection {
     jank_pipe: PathBuf,
     sx: Sender<(Option<u32>, JankType)>,
+    display_fps: Arc<AtomicU32>,
 }
 
 impl Connection {
@@ -53,15 +58,20 @@ impl Connection {
         let _ = OpenOptions::new().read(true).open(&jank_path)?;
 
         let (sx, rx) = mpsc::channel();
+        let display_fps = Arc::new(AtomicU32::new(0));
 
-        thread::Builder::new()
-            .name("StatusUpdater".into())
-            .spawn(move || input::updater(&rx, &hook_input_path))
-            .map_err(|_| Error::Other("Failed to start updater thread"))?;
+        {
+            let display_fps = display_fps.clone();
+            thread::Builder::new()
+                .name("StatusUpdater".into())
+                .spawn(move || input::updater(&rx, &hook_input_path, &display_fps))
+                .map_err(|_| Error::Other("Failed to start updater thread"))?;
+        }
 
         Ok(Self {
             jank_pipe: jank_path,
             sx,
+            display_fps,
         })
     }
 
@@ -95,5 +105,12 @@ impl Connection {
             .ok_or(Error::NamedPipe)?;
 
         Ok(JankLevel(level))
+    }
+
+    /// Get the current screen refresh rate
+    #[inline]
+    #[must_use]
+    pub fn display_fps(&self) -> u32 {
+        self.display_fps.load(Ordering::Acquire)
     }
 }
