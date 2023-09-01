@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["API_DIR"],"enum":["Error","JankType"],"struct":["Connection","JankLevel"]};
