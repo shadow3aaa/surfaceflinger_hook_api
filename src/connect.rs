@@ -66,7 +66,7 @@ impl Connection {
     ///
     /// io error
     pub fn set_input(&self, t: Option<u32>) -> Result<()> {
-        let message = t.map_or_else(|| "none:".into(), |t| format!("{t}:"));
+        let message = t.map_or_else(|| "none".into(), |t| format!("{t}"));
         fs::write(&self.input_pipe, message)?;
         Ok(())
     }
