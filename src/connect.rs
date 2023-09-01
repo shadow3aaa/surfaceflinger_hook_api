@@ -12,7 +12,7 @@
 *  See the License for the specific language governing permissions and
 *  limitations under the License. */
 use std::{
-    fs::{self, OpenOptions},
+    fs::{self},
     path::{Path, PathBuf},
     thread,
     time::Duration,
@@ -47,12 +47,15 @@ impl Connection {
             thread::sleep(Duration::from_secs(1));
         }
 
-        let _ = OpenOptions::new().read(true).open(&jank_path)?;
-
-        Ok(Self {
+        let s = Self {
             jank_pipe: jank_path,
             input_pipe: input_path,
-        })
+        };
+
+        s.set_input(None)?;
+        let _ = s.recv();
+
+        Ok(s)
     }
 
     /// Set `target_fps` for calculating jank
