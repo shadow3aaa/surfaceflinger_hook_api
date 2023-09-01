@@ -21,16 +21,20 @@ compile_error!("Only for aarch64 android");
 mod connect;
 mod error;
 
+use std::ops::Deref;
+
 pub use connect::Connection;
 pub use error::Error;
 
 pub const API_DIR: &str = "/dev/surfaceflinger_hook";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct JankLevel(pub u32);
+pub struct JankLevel(u32);
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum JankType {
-    Vsync,
-    Soft,
+impl Deref for JankLevel {
+    type Target = u32;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
 }

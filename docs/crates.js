@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["surfaceflinger_hook_api"];
+window.ALL_CRATES = ["proc_macro2","quote","syn","thiserror_impl","unicode_ident"];
