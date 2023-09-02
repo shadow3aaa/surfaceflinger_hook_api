@@ -58,15 +58,13 @@ impl Connection {
         Ok(s)
     }
 
-    /// Set `target_fps` for calculating jank
-    ///
-    /// Use `display_refresh_rate` when `target_fps` is set to None
+    /// Set inputs for calculating jank
     ///
     /// # Errors
     ///
     /// io error
-    pub fn set_input(&self, t: Option<u32>) -> Result<()> {
-        let message = t.map_or_else(|| "none".into(), |t| format!("{t}"));
+    pub fn set_input(&self, t: Option<(u32, Duration)>) -> Result<()> {
+        let message = t.map_or_else(|| "none".into(), |(t, d)| format!("{t}:{}", d.as_nanos()));
         fs::write(&self.input_pipe, message)?;
         Ok(())
     }
